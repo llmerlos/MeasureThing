@@ -39,6 +39,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.currentTimeMillis;
+
 public class MainActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     File dataFile, pointFile;
     private LinkedList<String> pointList;
     private int pointListSize;
+    private long startTime;
 
     private TextView wifiTextView, bleTextView, magTextView, valuesTextView, posTextView, fileroomTextView;
     private Button wifiBtn, bleBtn, allBtn, fileBtn, nextBtn, saveBtn;
@@ -74,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startTime = currentTimeMillis();
 
         xyz = "x,y,z";
 
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         pointList.add(strLine);
                     }
                     in.close();
+                    saveBtn.setEnabled(true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -122,26 +128,27 @@ public class MainActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("wifi",getValueString());
-                try {
-                    FileOutputStream fos = new FileOutputStream(dataFile, true);
-                    fos.write(getValueString().getBytes());
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
+                    dataFile = new File(getExternalFilesDir(datapath), fileroomTextView.getText() + "-" +filename);
+
+                    Log.i("wifi",getValueString());
+                    try {
+                        FileOutputStream fos = new FileOutputStream(dataFile, true);
+                        fos.write(getValueString().getBytes());
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
             }
         });
 
-        if (isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
-            dataFile = new File(getExternalFilesDir(datapath), filename);
-        } else {
-            saveBtn.setEnabled(false);
-            fileBtn.setEnabled(false);
-        }
-        String[] wmac = {"64:cc:22:9c:c4:31","64:cc:22:9c:c4:32","64:cc:22:9c:c4:30", "1c:b0:44:d6:86:7c", "1c:b0:44:d6:86:6f"};
-        String[] bnam = {"C4:64:E3:0D:90:10","1F:3D:66:02:A0:35"};
+        saveBtn.setEnabled(false);
+
+        //String[] wmac = {"64:cc:22:9c:c4:31","64:cc:22:9c:c4:32","64:cc:22:9c:c4:30", "1c:b0:44:d6:86:7c", "1c:b0:44:d6:86:6f"};
+        String[] wmac = {"A8:9D:21:74:69:0F", "B4:14:89:14:0A:3F", "A8:9D:21:82:6B:BF", "84:B8:02:22:2D:5F", "A8:9D:21:8C:9E:6F", "A8:9D:21:74:69:00", "B4:14:89:14:0A:30", "A8:9D:21:82:6B:B0", "84:B8:02:22:2D:50", "A8:9D:21:8C:9E:60"};
+        String[] bnam = {"P00000","P00001","P00002","P00003","P00004","P00005","P10000","P10001","P10002","P10003"};
 
         wifiMac = new LinkedHashMap<>();
         for (String n : wmac) {
@@ -225,12 +232,12 @@ public class MainActivity extends AppCompatActivity {
         List<ScanResult> results = wifiManager.getScanResults();
         wifiTextView.setText("");
         for (ScanResult re : results) {
-            if (wifiMac.containsKey(re.BSSID)) {
-                wifiMac.put(re.BSSID, re.level);
+            if (wifiMac.containsKey(re.BSSID.toUpperCase())) {
+                wifiMac.put(re.BSSID.toUpperCase(), re.level);
             }
 
             wifiTextView.append("SSID: " + re.SSID + "\n");
-            wifiTextView.append("BSSID: " + re.BSSID + "\n");
+            wifiTextView.append("BSSID: " + re.BSSID.toUpperCase() + "\n");
             wifiTextView.append("level: " + re.level + "\n");
         }
         updateValueView();
@@ -266,15 +273,16 @@ public class MainActivity extends AppCompatActivity {
                 public void onScanResult(int callbackType, android.bluetooth.le.ScanResult result) {
                     super.onScanResult(callbackType, result);
                     result.getDevice();
-                    /*if (bleName.containsKey(result.getScanRecord().getDeviceName())) {
+                    if (bleName.containsKey(result.getScanRecord().getDeviceName())) {
                         bleName.put(result.getScanRecord().getDeviceName(), result.getRssi());
+                    }
+
+                    /*if (bleName.containsKey(result.getDevice().toString())) {
+                        bleName.put(result.getDevice().toString(), result.getRssi());
                     }*/
 
-                    if (bleName.containsKey(result.getDevice().toString())) {
-                        bleName.put(result.getDevice().toString(), result.getRssi());
-                    }
-                    bleTextView.append("Dev: " + result.getDevice()+"\n");
                     bleTextView.append("Name: " + result.getScanRecord().getDeviceName()+"\n");
+                    bleTextView.append("Dev: " + result.getDevice()+"\n");
                     bleTextView.append("RSSI: " + result.getRssi()+"\n");
                     Log.i("wifi", "ble " + result.toString());
                 }
@@ -324,7 +332,8 @@ public class MainActivity extends AppCompatActivity {
 
     protected String getValueString(){
         String res = new String();
-        res = "0,"+ xyz +"," + (String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2]));
+        long dif = (currentTimeMillis() - startTime);
+        res = dif + ","+ xyz +"," + (String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2]));
         for (String key : wifiMac.keySet()) {
            res = res + "," + wifiMac.get(key).toString();
         }
