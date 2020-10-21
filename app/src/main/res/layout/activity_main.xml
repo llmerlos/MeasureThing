@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/fileroom"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:hint="pX-YY"
+        android:inputType="textPersonName" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/fileBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="File" />
+
+        <Button
+            android:id="@+id/nextBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="Next" />
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="Save" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/posTextView"
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_weight="1"
+        android:text="Position" />
+
+    <TextView
+        android:id="@+id/valuesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_weight="5"
+        android:scrollbars="vertical"
+        android:text="Values" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/scanAll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="Scan ALL" />
+
+        <TextView
+            android:id="@+id/magTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="MAG" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/scanWifiBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="Scan WiFi" />
+
+        <Button
+            android:id="@+id/scanBleBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:layout_weight="1"
+            android:background="@android:color/holo_red_light"
+            android:text="Scan BLE" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_weight="5"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/wifiTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:scrollbars="vertical"
+            android:text="Wifi" />
+
+        <TextView
+            android:id="@+id/bleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:scrollbars="vertical"
+            android:text="BLE" />
+    </LinearLayout>
+
+</LinearLayout>
