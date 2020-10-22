@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static java.lang.System.currentTimeMillis;
@@ -53,8 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
     private SensorManager sensorManager;
     private SensorListener sensorListener;
-    private Sensor magneticSensor;
+    private Sensor magneticSensor, rotationSensor;
     private float[] magneticField = new float[3];
+    private float[] rotationField = new float[3];
 
 
     private Map<String,Integer> wifiMac, bleName;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private int pointListSize;
     private long startTime;
 
-    private TextView wifiTextView, bleTextView, magTextView, valuesTextView, posTextView, fileroomTextView;
+    private TextView wifiTextView, bleTextView, magTextView, valuesTextView, posTextView, fileroomTextView, rotTextView;
     private Button wifiBtn, bleBtn, allBtn, fileBtn, nextBtn, saveBtn;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -148,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         //String[] wmac = {"64:cc:22:9c:c4:31","64:cc:22:9c:c4:32","64:cc:22:9c:c4:30", "1c:b0:44:d6:86:7c", "1c:b0:44:d6:86:6f"};
         String[] wmac = {"A8:9D:21:74:69:0F", "B4:14:89:14:0A:3F", "A8:9D:21:82:6B:BF", "84:B8:02:22:2D:5F", "A8:9D:21:8C:9E:6F", "A8:9D:21:74:69:00", "B4:14:89:14:0A:30", "A8:9D:21:82:6B:B0", "84:B8:02:22:2D:50", "A8:9D:21:8C:9E:60"};
-        String[] bnam = {"P00000","P00001","P00002","P00003","P00004","P00005","P10000","P10001","P10002","P10003"};
+        String[] bnam = {"P00000","P00001","P00002","P00003","P00004","P00005","P00006","P00007","P00008","P00009","P00010","P10000","P10001","P10002","P10003","P10004","P10005","P10006","P10007","P10008","P10009","P10010","E00000","E00001","E00002"};
 
         wifiMac = new LinkedHashMap<>();
         for (String n : wmac) {
@@ -214,8 +216,12 @@ public class MainActivity extends AppCompatActivity {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorListener = new SensorListener();
         magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
         magTextView = findViewById(R.id.magTextView);
         magTextView.setMovementMethod(new ScrollingMovementMethod());
+
+        rotTextView = findViewById(R.id.rotTextView);
+        rotTextView.setMovementMethod(new ScrollingMovementMethod());
 
         allBtn = findViewById(R.id.scanAll);
         allBtn.setOnClickListener(new View.OnClickListener() {
@@ -291,11 +297,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(sensorListener, magneticSensor, 1000000);
+        sensorManager.registerListener(sensorListener, rotationSensor, 2000000);
     }
 
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(sensorListener, magneticSensor);
+        sensorManager.unregisterListener(sensorListener, rotationSensor);
     }
 
 
@@ -308,6 +316,12 @@ public class MainActivity extends AppCompatActivity {
                 magTextView.setText((String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2])));
                 updateValueView();
                 Log.i("onSensorChangedM: ", (String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2])));
+            } else if (event.sensor == rotationSensor) {
+                System.arraycopy(event.values, 0, rotationField, 0, 3);
+                rotTextView.setText((String.format(Locale.US,"%.5f",rotationField[0])+","+String.format(Locale.US,"%.5f",rotationField[1])+","+String.format(Locale.US,"%.5f",rotationField[2])));
+                updateValueView();
+                Log.i("onSensorChangedM: ", (String.valueOf(rotationField[0])+","+String.valueOf(rotationField[1])+","+String.valueOf(rotationField[2])));
+                Log.i("rotation", String.valueOf(event.values[0]) + String.valueOf(event.values[1]) + String.valueOf(event.values[0]));
             }
         }
 
@@ -320,6 +334,7 @@ public class MainActivity extends AppCompatActivity {
     protected void updateValueView(){
         valuesTextView.setText("");
         valuesTextView.append("MAG: " + (String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2])) + "\n");
+        valuesTextView.append("ROT: " + rotTextView.getText() + "\n");
         valuesTextView.append("WIFI: \n");
         for (String key : wifiMac.keySet()) {
             valuesTextView.append(key + " " + wifiMac.get(key).toString() + "\n");
@@ -334,6 +349,7 @@ public class MainActivity extends AppCompatActivity {
         String res = new String();
         long dif = (currentTimeMillis() - startTime);
         res = dif + ","+ xyz +"," + (String.valueOf(magneticField[0])+","+String.valueOf(magneticField[1])+","+String.valueOf(magneticField[2]));
+        res = res + "," + rotTextView.getText();
         for (String key : wifiMac.keySet()) {
            res = res + "," + wifiMac.get(key).toString();
         }

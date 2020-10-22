@@ -89,6 +89,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="MAG" />
+
+        <TextView
+            android:id="@+id/rotTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="ROT" />
     </LinearLayout>
 
     <LinearLayout
